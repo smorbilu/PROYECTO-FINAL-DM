@@ -1,0 +1,67 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Registrar rostro</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Registrar rostro</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  @if (resultado(); as registro) {
+    <ion-card color="success" class="resultado">
+      <ion-card-header>
+        <ion-icon name="checkmark-circle" aria-hidden="true"></ion-icon>
+        <ion-card-title>Rostro registrado</ion-card-title>
+        <ion-card-subtitle>{{ nombreLegible(registro.id) }}</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <p>Identificador: <strong>{{ registro.id }}</strong></p>
+        <p>Confianza de detección: <strong>{{ registro.confianza | number: '1.1-1' }} %</strong></p>
+      </ion-card-content>
+    </ion-card>
+    @if (foto(); as actual) {
+      <img class="miniatura" [src]="actual.vista" alt="Foto registrada">
+    }
+    <ion-button expand="block" (click)="nuevoRegistro()">
+      <ion-icon slot="start" name="person-add-outline" aria-hidden="true"></ion-icon>
+      Registrar otra persona
+    </ion-button>
+  } @else {
+    <p class="ayuda">Escribe el nombre de la persona y tómale una foto de frente, con buena luz y sin lentes oscuros.</p>
+
+    <ion-input
+      label="Nombre o carné"
+      labelPlacement="stacked"
+      fill="outline"
+      placeholder="Ej. Luis Rivas"
+      maxlength="60"
+      [(ngModel)]="nombre"
+      [disabled]="cargando()"
+    ></ion-input>
+    @if (identificador()) {
+      <ion-note class="identificador">Se guardará como <strong>{{ identificador() }}</strong></ion-note>
+    }
+
+    <app-selector-foto [(foto)]="foto" [deshabilitado]="cargando()"></app-selector-foto>
+
+    @if (error()) {
+      <ion-text color="danger">
+        <p class="error">{{ error() }}</p>
+      </ion-text>
+    }
+
+    <ion-button expand="block" size="large" class="enviar" (click)="registrar()" [disabled]="!puedeRegistrar()">
+      @if (cargando()) {
+        <ion-spinner name="crescent" slot="start"></ion-spinner>
+        Registrando…
+      } @else {
+        <ion-icon slot="start" name="cloud-upload-outline" aria-hidden="true"></ion-icon>
+        Registrar
+      }
+    </ion-button>
+  }
+</ion-content>

@@ -1,0 +1,95 @@
+# Contexto del proyecto
+
+Soy estudiante de Ingeniería en Sistemas (Universidad Da Vinci de Guatemala). Necesito ayuda con mi proyecto final: reconocimiento facial en una app móvil de tecnología híbrida usando AWS.
+
+## Enunciado de la tarea
+
+Hacer implementación de reconocimiento facial en proyecto móvil de tecnología híbrida. Puedo elegir Ionic + Capacitor + template Angular (el visto en clase) o React Native.
+
+Modalidad de entrega:
+1. Cargar un PDF con carátula de la universidad.
+2. En el cuerpo del trabajo, desarrollar y explicar el paso a paso de todo lo realizado, tanto en la cuenta de AWS como en el código. Punto importante: colocar las 3 URLs de las lambdas generadas y un request para testearlas. Explicarlo como si fuera para alguien con conocimiento cero.
+3. Subir todo el código a un repositorio de GitHub, invitar al usuario `rarizandieta` y poner el enlace en el documento (debe ser una URL HTTPS válida).
+4. Cargar el APK con el nombre `nombre_V1.apk` (ejemplo: `rigoberto_v1.apk`).
+5. Pruebas en sesión de clase el lunes 30 de noviembre, unos 8 minutos por estudiante.
+
+No hay fecha extraordinaria de recepción.
+
+## Situación actual
+
+- Creo que ya tengo un proyecto con reconocimiento facial y lambdas en mi cuenta de AWS, pero no estoy seguro de qué hay desplegado ni en qué región.
+- Aún no he revisado el código ni las URLs.
+- Quiero verificar qué existe, completar lo que falte y dejar todo funcionando.
+
+## Arquitectura propuesta
+
+App Ionic (cámara → base64) → API Gateway (HTTPS, CORS activado) → Lambda (Python 3.12, boto3) → Amazon Rekognition.
+
+Las 3 lambdas:
+1. `registrar-rostro`: recibe ID/nombre y foto; usa `IndexFaces` con `ExternalImageId` = ID de la persona.
+2. `reconocer-rostro`: recibe una foto; usa `SearchFacesByImage`; devuelve si hay coincidencia, el ID y la similitud.
+3. `listar-eliminar-rostros` (o `CompareFaces` entre dos fotos): lambda de apoyo.
+
+Todo en una sola región (propuesta: `us-east-1`). Colección de Rekognition: `rostros-udv`. Rol IAM con `AmazonRekognitionFullAccess` y `AWSLambdaBasicExecutionRole`.
+
+## Código base de `reconocer-rostro`
+
+```python
+import boto3, base64, json
+
+rek = boto3.client("rekognition")
+COLLECTION = "rostros-udv"
+
+def lambda_handler(event, context):
+    body = json.loads(event["body"])
+    image_bytes = base64.b64decode(body["image"])
+    try:
+        res = rek.search_faces_by_image(
+            CollectionId=COLLECTION,
+            Image={"Bytes": image_bytes},
+            FaceMatchThreshold=85,
+            MaxFaces=1,
+        )
+        matches = res["FaceMatches"]
+        if not matches:
+            result = {"match": False}
+        else:
+            m = matches[0]
+            result = {
+                "match": True,
+                "id": m["Face"]["ExternalImageId"],
+                "similarity": m["Similarity"],
+            }
+        status = 200
+    except Exception as e:
+        result, status = {"error": str(e)}, 500
+    return {
+        "statusCode": status,
+        "headers": {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json"},
+        "body": json.dumps(result),
+    }
+```
+
+## Plan por fases
+
+1. **AWS**: revisar qué existe (lambdas, API Gateway, colección). Crear lo que falte: colección, rol IAM, las 3 lambdas, API Gateway con una ruta por lambda y CORS. Probar cada endpoint con curl/Postman y guardar los requests.
+2. **App Ionic**: `ionic start` (template Angular), `@capacitor/camera`, pantallas de registro y reconocimiento, servicio con `HttpClient` hacia las 3 URLs, `npx cap add android`, permiso de cámara en el `AndroidManifest.xml`, generar el APK desde Android Studio.
+3. **Entrega**: repo en GitHub (HTTPS válido, invitar a `rarizandieta`), PDF con carátula y paso a paso con capturas, APK con el nombre correcto, ensayo de la demo de 8 minutos.
+
+## Comandos para inspeccionar AWS
+
+```bash
+aws lambda list-functions --region us-east-1
+aws apigateway get-rest-apis --region us-east-1
+aws apigatewayv2 get-apis --region us-east-1
+aws rekognition list-collections --region us-east-1
+```
+
+Si no aparece nada, probar `us-east-2` y `us-west-2`.
+
+## Reglas para trabajar conmigo
+
+- Explícame cada paso con detalle, porque lo documentaré en el PDF como si el lector no supiera nada.
+- Nunca escribas credenciales de AWS en archivos del repo ni en el chat; usa `aws configure` o SSO y variables de entorno, y agrega `.env` al `.gitignore`.
+- Empieza por inspeccionar qué hay en AWS antes de crear nada nuevo.
+- Mi fecha límite es el 30 de noviembre.

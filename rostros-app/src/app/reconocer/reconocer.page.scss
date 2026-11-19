@@ -1,0 +1,29 @@
+.ayuda {
+  color: var(--ion-color-medium);
+  margin-top: 0;
+}
+
+.enviar {
+  margin-top: 20px;
+}
+
+.error {
+  text-align: center;
+}
+
+.resultado {
+  margin: 16px 0 0;
+
+  ion-card-header {
+    align-items: center;
+    text-align: center;
+  }
+
+  ion-icon {
+    font-size: 56px;
+  }
+
+  p {
+    margin: 4px 0;
+  }
+}

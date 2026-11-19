@@ -1,0 +1,60 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Reconocer rostro</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Reconocer rostro</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <p class="ayuda">Toma una foto de la persona y la app buscará si su rostro ya está registrado.</p>
+
+  <app-selector-foto [(foto)]="foto" [deshabilitado]="cargando()"></app-selector-foto>
+
+  <ion-button expand="block" size="large" class="enviar" (click)="reconocer()" [disabled]="!puedeReconocer()">
+    @if (cargando()) {
+      <ion-spinner name="crescent" slot="start"></ion-spinner>
+      Buscando…
+    } @else {
+      <ion-icon slot="start" name="scan-outline" aria-hidden="true"></ion-icon>
+      Reconocer
+    }
+  </ion-button>
+
+  @if (error()) {
+    <ion-text color="danger">
+      <p class="error">{{ error() }}</p>
+    </ion-text>
+  }
+
+  @if (resultado(); as respuesta) {
+    @if (respuesta.match && respuesta.id) {
+      <ion-card color="success" class="resultado">
+        <ion-card-header>
+          <ion-icon name="checkmark-circle" aria-hidden="true"></ion-icon>
+          <ion-card-subtitle>Persona reconocida</ion-card-subtitle>
+          <ion-card-title>{{ nombreLegible(respuesta.id) }}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p>Identificador: <strong>{{ respuesta.id }}</strong></p>
+          <p>Similitud: <strong>{{ respuesta.similarity | number: '1.1-1' }} %</strong></p>
+        </ion-card-content>
+      </ion-card>
+    } @else {
+      <ion-card color="warning" class="resultado">
+        <ion-card-header>
+          <ion-icon name="help-circle" aria-hidden="true"></ion-icon>
+          <ion-card-title>Sin coincidencias</ion-card-title>
+          <ion-card-subtitle>Este rostro no está registrado</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <p>Regístralo primero en la pestaña Registrar.</p>
+        </ion-card-content>
+      </ion-card>
+    }
+  }
+</ion-content>

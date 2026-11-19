@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Rostros UDV</string>
+    <string name="title_activity_main">Rostros UDV</string>
+    <string name="package_name">com.udv.rostros</string>
+    <string name="custom_url_scheme">com.udv.rostros</string>
+</resources>

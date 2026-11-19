@@ -1,0 +1,27 @@
+<div class="marco" [class.vacio]="!foto()">
+  @if (foto(); as actual) {
+    <img [src]="actual.vista" alt="Foto seleccionada">
+  } @else if (procesando()) {
+    <ion-spinner name="crescent"></ion-spinner>
+  } @else {
+    <ion-icon name="person-circle-outline" aria-hidden="true"></ion-icon>
+    <span>Aún no hay foto</span>
+  }
+</div>
+
+<div class="botones">
+  <ion-button expand="block" (click)="tomar()" [disabled]="deshabilitado() || procesando()">
+    <ion-icon slot="start" name="camera-outline" aria-hidden="true"></ion-icon>
+    {{ foto() ? 'Tomar otra' : 'Tomar foto' }}
+  </ion-button>
+  <ion-button expand="block" fill="outline" (click)="galeria()" [disabled]="deshabilitado() || procesando()">
+    <ion-icon slot="start" name="images-outline" aria-hidden="true"></ion-icon>
+    Galería
+  </ion-button>
+</div>
+
+@if (error()) {
+  <ion-text color="danger">
+    <p class="error">{{ error() }}</p>
+  </ion-text>
+}

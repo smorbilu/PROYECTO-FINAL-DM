@@ -1,0 +1,11 @@
+.env
+*.zip
+*.apk
+*.aab
+*.jks
+*.keystore
+keystore.properties
+node_modules/
+referencia-lambdas-liveness/
+capturas/
+__pycache__/

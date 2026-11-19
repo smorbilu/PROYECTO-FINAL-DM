@@ -1,0 +1,47 @@
+.ayuda {
+  color: var(--ion-color-medium);
+  margin-top: 0;
+}
+
+.identificador {
+  display: block;
+  margin: 6px 4px 16px;
+}
+
+app-selector-foto {
+  margin-top: 16px;
+}
+
+.error {
+  text-align: center;
+}
+
+.enviar {
+  margin-top: 20px;
+}
+
+.resultado {
+  margin: 0 0 16px;
+
+  ion-card-header {
+    align-items: center;
+    text-align: center;
+  }
+
+  ion-icon {
+    font-size: 56px;
+  }
+
+  p {
+    margin: 4px 0;
+  }
+}
+
+.miniatura {
+  display: block;
+  width: 160px;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 12px;
+  margin: 0 auto 16px;
+}
